@@ -1,0 +1,264 @@
+<?php
+
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\BranchController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DelegateController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\AreaController;
+use App\Http\Controllers\MeasurementUnitController;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\VehicleController;
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\TreasuryController;
+use App\Http\Controllers\TreasuryTransactionController;
+use App\Http\Controllers\FinancialTransactionController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\AccountingExportController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductImportExportController;
+use App\Http\Controllers\StockTransferController;
+use App\Http\Controllers\InventoryDispatchController;
+use App\Http\Controllers\TaxController;
+use Illuminate\Support\Facades\Route;
+
+// Guest Routes
+Route::middleware('guest:admin')->group(function () {
+    Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
+});
+
+// Authenticated Admin Routes
+Route::middleware('auth:admin')->group(function () {
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    // Dashboard
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Branches
+    Route::middleware('permission:branches.view')->group(function () {
+        Route::get('/branches', [BranchController::class, 'index'])->name('branches.index');
+    });
+    Route::middleware('permission:branches.create')->group(function () {
+        Route::get('/branches/create', [BranchController::class, 'create'])->name('branches.create');
+    });
+    Route::middleware('permission:branches.edit')->group(function () {
+        Route::get('/branches/{id}/edit', [BranchController::class, 'edit'])->name('branches.edit');
+    });
+
+    // Admins
+    Route::middleware('permission:admins.view')->group(function () {
+        Route::get('/admins', [AdminController::class, 'index'])->name('admins.index');
+    });
+    Route::middleware('permission:admins.create')->group(function () {
+        Route::get('/admins/create', [AdminController::class, 'create'])->name('admins.create');
+    });
+    Route::middleware('permission:admins.edit')->group(function () {
+        Route::get('/admins/{id}/edit', [AdminController::class, 'edit'])->name('admins.edit');
+    });
+
+    // Roles
+    Route::middleware('permission:roles.view')->group(function () {
+        Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
+    });
+    Route::middleware('permission:roles.create')->group(function () {
+        Route::get('/roles/create', [RoleController::class, 'create'])->name('roles.create');
+    });
+    Route::middleware('permission:roles.edit')->group(function () {
+        Route::get('/roles/{id}/edit', [RoleController::class, 'edit'])->name('roles.edit');
+    });
+
+    // Permissions
+    Route::middleware('permission:permissions.view')->group(function () {
+        Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index');
+    });
+
+    // Vehicles
+    Route::middleware('permission:vehicles.view')->group(function () {
+        Route::get('/vehicles', [VehicleController::class, 'index'])->name('vehicles.index');
+    });
+    Route::middleware('permission:vehicles.create')->group(function () {
+        Route::get('/vehicles/create', [VehicleController::class, 'create'])->name('vehicles.create');
+    });
+    Route::middleware('permission:vehicles.edit')->group(function () {
+        Route::get('/vehicles/{id}/edit', [VehicleController::class, 'edit'])->name('vehicles.edit');
+    });
+
+    // Categories
+    Route::middleware('permission:categories.view')->group(function () {
+        Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+    });
+    Route::middleware('permission:categories.create')->group(function () {
+        Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');
+    });
+    Route::middleware('permission:categories.edit')->group(function () {
+        Route::get('/categories/{id}/edit', [CategoryController::class, 'edit'])->name('categories.edit');
+    });
+
+    // Areas
+    Route::middleware('permission:areas.view')->group(function () {
+        Route::get('/areas', [AreaController::class, 'index'])->name('areas.index');
+    });
+    Route::middleware('permission:areas.create')->group(function () {
+        Route::get('/areas/create', [AreaController::class, 'create'])->name('areas.create');
+    });
+    Route::middleware('permission:areas.edit')->group(function () {
+        Route::get('/areas/{id}/edit', [AreaController::class, 'edit'])->name('areas.edit');
+    });
+
+    // Customers
+    Route::middleware('permission:customers.view')->group(function () {
+        Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
+    });
+    Route::middleware('permission:customers.create')->group(function () {
+        Route::get('/customers/create', [CustomerController::class, 'create'])->name('customers.create');
+    });
+    Route::middleware('permission:customers.edit')->group(function () {
+        Route::get('/customers/{id}/edit', [CustomerController::class, 'edit'])->name('customers.edit');
+    });
+
+    // Delegates
+    Route::middleware('permission:delegates.view')->group(function () {
+        Route::get('/delegates', [DelegateController::class, 'index'])->name('delegates.index');
+    });
+    Route::middleware('permission:delegates.create')->group(function () {
+        Route::get('/delegates/create', [DelegateController::class, 'create'])->name('delegates.create');
+    });
+    Route::middleware('permission:delegates.edit')->group(function () {
+        Route::get('/delegates/{id}/edit', [DelegateController::class, 'edit'])->name('delegates.edit');
+    });
+
+    // Suppliers
+    Route::middleware('permission:suppliers.view')->group(function () {
+        Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
+    });
+    Route::middleware('permission:suppliers.create')->group(function () {
+        Route::get('/suppliers/create', [SupplierController::class, 'create'])->name('suppliers.create');
+    });
+    Route::middleware('permission:suppliers.edit')->group(function () {
+        Route::get('/suppliers/{id}/edit', [SupplierController::class, 'edit'])->name('suppliers.edit');
+    });
+
+    // Measurement Units
+    Route::middleware('permission:units.view')->group(function () {
+        Route::get('/units', [MeasurementUnitController::class, 'index'])->name('units.index');
+    });
+    Route::middleware('permission:units.create')->group(function () {
+        Route::get('/units/create', [MeasurementUnitController::class, 'create'])->name('units.create');
+    });
+    Route::middleware('permission:units.edit')->group(function () {
+        Route::get('/units/{id}/edit', [MeasurementUnitController::class, 'edit'])->name('units.edit');
+    });
+
+    // Taxes
+    Route::middleware('permission:taxes.view')->group(function () {
+        Route::get('/taxes', [TaxController::class, 'index'])->name('taxes.index');
+    });
+    Route::middleware('permission:taxes.create')->group(function () {
+        Route::get('/taxes/create', [TaxController::class, 'create'])->name('taxes.create');
+    });
+    Route::middleware('permission:taxes.edit')->group(function () {
+        Route::get('/taxes/{id}/edit', [TaxController::class, 'edit'])->name('taxes.edit');
+    });
+
+    // Accounts
+    Route::middleware('permission:accounts.view')->group(function () {
+        Route::get('/accounts', [AccountController::class, 'index'])->name('accounts.index');
+    });
+    Route::middleware('permission:accounts.create')->group(function () {
+        Route::get('/accounts/create', [AccountController::class, 'create'])->name('accounts.create');
+    });
+    Route::middleware('permission:accounts.edit')->group(function () {
+        Route::get('/accounts/{id}/edit', [AccountController::class, 'edit'])->name('accounts.edit');
+    });
+
+    // Treasuries
+    Route::middleware('permission:treasuries.view')->group(function () {
+        Route::get('/treasuries', [TreasuryController::class, 'index'])->name('treasuries.index');
+    });
+    Route::middleware('permission:treasuries.create')->group(function () {
+        Route::get('/treasuries/create', [TreasuryController::class, 'create'])->name('treasuries.create');
+    });
+    Route::middleware('permission:treasuries.edit')->group(function () {
+        Route::get('/treasuries/{id}/edit', [TreasuryController::class, 'edit'])->name('treasuries.edit');
+    });
+
+    // Treasury Transactions
+    Route::middleware('permission:treasury-transactions.view')->group(function () {
+        Route::get('/treasury-transactions', [TreasuryTransactionController::class, 'index'])->name('treasury-transactions.index');
+    });
+    Route::middleware('permission:treasury-transactions.create')->group(function () {
+        Route::get('/treasury-transactions/create', [TreasuryTransactionController::class, 'create'])->name('treasury-transactions.create');
+    });
+
+    // Financial Transactions
+    Route::middleware('permission:financial-transactions.view')->group(function () {
+        Route::get('/financial-transactions', [FinancialTransactionController::class, 'index'])->name('financial-transactions.index');
+    });
+    Route::middleware('permission:financial-transactions.create')->group(function () {
+        Route::get('/financial-transactions/create', [FinancialTransactionController::class, 'create'])->name('financial-transactions.create');
+    });
+    Route::middleware('permission:financial-transactions.edit')->group(function () {
+        Route::get('/financial-transactions/{id}/edit', [FinancialTransactionController::class, 'edit'])->name('financial-transactions.edit');
+    });
+
+    // Reports
+    Route::middleware('permission:reports.view')->group(function () {
+        Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    });
+
+    // Products
+    Route::middleware('permission:products.view')->group(function () {
+        Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+        Route::get('/products/export/excel', [ProductImportExportController::class, 'export'])->name('products.export.excel');
+    });
+    Route::middleware('permission:products.create')->group(function () {
+        Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
+        Route::get('/products/import/template', [ProductImportExportController::class, 'template'])->name('products.import.template');
+        Route::post('/products/import', [ProductImportExportController::class, 'import'])->name('products.import');
+    });
+    Route::middleware('permission:products.edit')->group(function () {
+        Route::get('/products/{id}/edit', [ProductController::class, 'edit'])->name('products.edit');
+    });
+
+    // Stock Transfers
+    Route::middleware('permission:stock-transfers.view')->group(function () {
+        Route::get('/stock-transfers', [StockTransferController::class, 'index'])->name('stock-transfers.index');
+    });
+    Route::middleware('permission:stock-transfers.create')->group(function () {
+        Route::get('/stock-transfers/create', [StockTransferController::class, 'create'])->name('stock-transfers.create');
+    });
+
+    // Inventory Dispatches
+    Route::middleware('permission:inventory-dispatches.create')->group(function () {
+        Route::get('/inventory-dispatches/create', [InventoryDispatchController::class, 'create'])->name('inventory-dispatches.create');
+    });
+    Route::middleware('permission:inventory-dispatches.view')->group(function () {
+        Route::get('/inventory-dispatches', [InventoryDispatchController::class, 'index'])->name('inventory-dispatches.index');
+        Route::get('/inventory-dispatches/{id}', [InventoryDispatchController::class, 'show'])->name('inventory-dispatches.show');
+    });
+
+    // ─── Accounting Exports (Excel & PDF) ───
+    Route::middleware('permission:accounts.view')->group(function () {
+        Route::get('/accounts/export/excel', [AccountingExportController::class, 'accountsExcel'])->name('accounts.export.excel');
+        Route::get('/accounts/export/pdf', [AccountingExportController::class, 'accountsPdf'])->name('accounts.export.pdf');
+    });
+    Route::middleware('permission:treasuries.view')->group(function () {
+        Route::get('/treasuries/export/excel', [AccountingExportController::class, 'treasuriesExcel'])->name('treasuries.export.excel');
+        Route::get('/treasuries/export/pdf', [AccountingExportController::class, 'treasuriesPdf'])->name('treasuries.export.pdf');
+    });
+    Route::middleware('permission:treasury-transactions.view')->group(function () {
+        Route::get('/treasury-transactions/export/excel', [AccountingExportController::class, 'treasuryTransactionsExcel'])->name('treasury-transactions.export.excel');
+        Route::get('/treasury-transactions/export/pdf', [AccountingExportController::class, 'treasuryTransactionsPdf'])->name('treasury-transactions.export.pdf');
+    });
+    Route::middleware('permission:financial-transactions.view')->group(function () {
+        Route::get('/financial-transactions/export/excel', [AccountingExportController::class, 'financialTransactionsExcel'])->name('financial-transactions.export.excel');
+        Route::get('/financial-transactions/export/pdf', [AccountingExportController::class, 'financialTransactionsPdf'])->name('financial-transactions.export.pdf');
+    });
+    Route::middleware('permission:reports.view')->group(function () {
+        Route::get('/reports/export/pdf', [AccountingExportController::class, 'reportsPdf'])->name('reports.export.pdf');
+    });
+});
