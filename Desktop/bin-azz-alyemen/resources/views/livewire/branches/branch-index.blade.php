@@ -1,72 +1,71 @@
-<div>
-    {{-- Page Header --}}
+﻿<div>
     <div class="flex items-center justify-between mb-6">
         <div>
-            <h1 class="text-2xl font-bold text-primary-700">إدارة الفروع</h1>
-            <p class="text-sm text-gray-500 mt-1">عرض وإدارة جميع فروع الشركة</p>
+            <h1 class="text-2xl font-extrabold text-primary-700 tracking-tight">إدارة الفروع</h1>
+            <p class="text-sm text-gray-400 mt-0.5">عرض وإدارة جميع فروع الشركة</p>
         </div>
         @if(auth('admin')->user()?->hasPermission('branches.create'))
             <x-button variant="primary" href="{{ route('branches.create') }}">
-                <x-icon name="plus" class="w-4 h-4" />
-                إضافة فرع
+                <x-icon name="plus" class="w-4 h-4" />إضافة فرع
             </x-button>
         @endif
     </div>
-
-    {{-- Search --}}
-    <div class="bg-card rounded-2xl shadow-sm border border-primary-100 p-4 mb-6">
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-5">
         <div class="relative">
-            <x-icon name="search" class="w-5 h-5 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
-            <input
-                type="text"
-                wire:model.live.debounce.300ms="search"
-                placeholder="بحث بالاسم أو الهاتف أو البريد..."
-                class="w-full pr-10 pl-4 py-3 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-300 focus:border-primary-400 transition-all text-sm"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
+            <input type="text" wire:model.live.debounce.300ms="search" placeholder="بحث بالاسم أو الهاتف أو البريد..."
+                class="w-full pr-9 pl-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 text-sm focus:bg-white focus:ring-2 focus:ring-primary-300 transition-all">
         </div>
     </div>
-
-    {{-- Table --}}
-    <x-data-table :headers="['#', 'الاسم', 'الهاتف', 'البريد الإلكتروني', 'خط العرض', 'خط الطول', 'الإجراءات']">
+    @php
+    $branchColors = [
+        ['from-emerald-400','to-teal-600'],['from-blue-400','to-indigo-600'],
+        ['from-orange-400','to-amber-600'],['from-violet-400','to-purple-600'],
+        ['from-rose-400','to-pink-600'],['from-cyan-400','to-blue-600'],
+    ];
+    @endphp
+    <div class="space-y-2.5">
         @forelse($branches as $branch)
-            <tr class="hover:bg-primary-50/50 transition-colors">
-                <td class="px-6 py-4 text-gray-500">{{ $branch->id }}</td>
-                <td class="px-6 py-4 font-medium text-gray-800">{{ $branch->name }}</td>
-                <td class="px-6 py-4 text-gray-600" dir="ltr">{{ $branch->phone ?? '-' }}</td>
-                <td class="px-6 py-4 text-gray-600" dir="ltr">{{ $branch->email ?? '-' }}</td>
-                <td class="px-6 py-4 text-gray-600" dir="ltr">{{ $branch->latitude ?? '-' }}</td>
-                <td class="px-6 py-4 text-gray-600" dir="ltr">{{ $branch->longitude ?? '-' }}</td>
-                <td class="px-6 py-4">
-                    <div class="flex items-center gap-2">
-                        @if(auth('admin')->user()?->hasPermission('branches.edit'))
-                            <a href="{{ route('branches.edit', $branch) }}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="تعديل">
-                                <x-icon name="pencil" class="w-4 h-4" />
-                            </a>
-                        @endif
-                        @if(auth('admin')->user()?->hasPermission('branches.delete'))
-                            <button
-                                wire:click="delete({{ $branch->id }})"
-                                wire:confirm="هل أنت متأكد من حذف هذا الفرع؟"
-                                class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                title="حذف"
-                            >
-                                <x-icon name="trash" class="w-4 h-4" />
-                            </button>
-                        @endif
-                    </div>
-                </td>
-            </tr>
+            @php $bc = $branchColors[$branch->id % count($branchColors)]; @endphp
+            <div class="flex items-center gap-4 bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-4 hover:shadow-md hover:border-emerald-100 transition-all">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-br {{ $bc[0] }} {{ $bc[1] }} flex items-center justify-center text-white flex-shrink-0 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" /></svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="font-bold text-gray-800 text-sm">{{ $branch->name }}</p>
+                    <p class="text-xs text-gray-400" dir="ltr">{{ $branch->email ?? $branch->phone ?? '—' }}</p>
+                </div>
+                <div class="hidden md:flex flex-col w-36 min-w-0">
+                    <p class="text-xs text-gray-400 mb-0.5">الهاتف</p>
+                    <p class="text-sm font-medium text-gray-700" dir="ltr">{{ $branch->phone ?? '—' }}</p>
+                </div>
+                <div class="hidden lg:flex flex-col w-36 min-w-0">
+                    <p class="text-xs text-gray-400 mb-0.5">البريد الإلكتروني</p>
+                    <p class="text-sm text-gray-600 truncate" dir="ltr">{{ $branch->email ?? '—' }}</p>
+                </div>
+                <div class="hidden xl:flex flex-col w-48 min-w-0">
+                    <p class="text-xs text-gray-400 mb-0.5">الموقع</p>
+                    <p class="text-xs text-gray-500 font-mono" dir="ltr">{{ $branch->latitude ? $branch->latitude.', '.$branch->longitude : '—' }}</p>
+                </div>
+                <div class="flex items-center gap-1.5 flex-shrink-0">
+                    @if(auth('admin')->user()?->hasPermission('branches.edit'))
+                        <a href="{{ route('branches.edit', $branch) }}" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" /></svg>
+                        </a>
+                    @endif
+                    @if(auth('admin')->user()?->hasPermission('branches.delete'))
+                        <button wire:click="delete({{ $branch->id }})" wire:confirm="هل أنت متأكد من حذف هذا الفرع؟" class="w-8 h-8 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 flex items-center justify-center transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
+                        </button>
+                    @endif
+                </div>
+            </div>
         @empty
-            <tr>
-                <td colspan="7" class="px-6 py-12 text-center text-gray-400">
-                    <x-icon name="building" class="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                    <p>لا توجد فروع مسجلة</p>
-                </td>
-            </tr>
+            <div class="bg-white rounded-2xl border border-gray-100 py-16 text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-14 h-14 mx-auto mb-3 text-gray-200" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" /></svg>
+                <p class="text-gray-400 text-sm">لا توجد فروع مسجلة</p>
+            </div>
         @endforelse
-
-        <x-slot:pagination>
-            {{ $branches->links() }}
-        </x-slot:pagination>
-    </x-data-table>
+    </div>
+    @if($branches->hasPages())<div class="mt-4">{{ $branches->links() }}</div>@endif
 </div>

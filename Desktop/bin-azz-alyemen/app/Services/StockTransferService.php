@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\StockTransfer;
+use App\Models\Unit;
 use App\Repositories\Contracts\StockTransferRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 
@@ -30,7 +31,8 @@ class StockTransferService
             foreach ($items as $item) {
                 $transfer->items()->create([
                     'product_id' => $item['product_id'],
-                    'quantity' => $item['quantity'],
+                    'quantity'   => $item['quantity'],
+                    'unit_id'    => $item['unit_id'] ?: null,
                 ]);
             }
 
@@ -54,14 +56,17 @@ class StockTransferService
                     ->where('product_id', $item->product_id)
                     ->first();
 
-                if (!$branchProduct || $branchProduct->quantity < $item->quantity) {
+                // Resolve quantity in stock unit
+                $deductQty = $this->resolveQtyInStockUnit($item, $branchProduct);
+
+                if (!$branchProduct || $branchProduct->quantity < $deductQty) {
                     throw new \Exception("الكمية غير كافية للمنتج: {$item->product->name}");
                 }
 
                 DB::table('branch_product')
                     ->where('branch_id', $transfer->from_branch_id)
                     ->where('product_id', $item->product_id)
-                    ->decrement('quantity', $item->quantity);
+                    ->decrement('quantity', $deductQty);
             }
 
             $transfer->update([
@@ -102,17 +107,28 @@ class StockTransferService
 
             // Add to destination branch
             foreach ($transfer->items as $item) {
-                DB::table('branch_product')->updateOrInsert(
-                    [
-                        'branch_id' => $transfer->to_branch_id,
+                $stockRow = DB::table('branch_product')
+                    ->where('branch_id', $transfer->to_branch_id)
+                    ->where('product_id', $item->product_id)
+                    ->first();
+
+                $addQty    = $this->resolveQtyInStockUnit($item, $stockRow);
+                $unitToUse = $stockRow?->unit_id ?? $item->unit_id;
+
+                if ($stockRow) {
+                    DB::table('branch_product')
+                        ->where('id', $stockRow->id)
+                        ->update(['quantity' => $stockRow->quantity + $addQty, 'updated_at' => now()]);
+                } else {
+                    DB::table('branch_product')->insert([
+                        'branch_id'  => $transfer->to_branch_id,
                         'product_id' => $item->product_id,
-                    ],
-                    [
-                        'quantity' => DB::raw("COALESCE(quantity, 0) + {$item->quantity}"),
+                        'quantity'   => $addQty,
+                        'unit_id'    => $unitToUse,
+                        'created_at' => now(),
                         'updated_at' => now(),
-                        'created_at' => DB::raw("COALESCE(created_at, '" . now() . "')"),
-                    ]
-                );
+                    ]);
+                }
             }
 
             $transfer->update([
@@ -123,5 +139,52 @@ class StockTransferService
 
             return $transfer;
         });
+    }
+
+    /**
+     * Convert item quantity to the stock unit quantity.
+     * If the result is fractional, convert the stock to base unit first.
+     */
+    protected function resolveQtyInStockUnit(object $item, ?object $stockRow): int
+    {
+        $transferUnit = $item->unit_id ? Unit::find($item->unit_id) : null;
+        $stockUnit    = $stockRow?->unit_id ? Unit::find($stockRow->unit_id) : null;
+
+        // No unit info — use quantity as-is
+        if (!$transferUnit || !$stockUnit) {
+            return (int) $item->quantity;
+        }
+
+        $transferFactor = (float) $transferUnit->conversion_factor;
+        $stockFactor    = (float) $stockUnit->conversion_factor;
+
+        if ($stockFactor <= 0) return (int) $item->quantity;
+
+        $qtyInStock = ((float) $item->quantity * $transferFactor) / $stockFactor;
+
+        if (abs($qtyInStock - round($qtyInStock)) < 0.000001) {
+            return (int) round($qtyInStock);
+        }
+
+        // Fractional — convert to base unit
+        $baseUnitId = $this->resolveBaseUnitId($stockUnit);
+        $baseUnit   = Unit::find($baseUnitId);
+        if (!$baseUnit) return (int) $item->quantity;
+
+        $qtyInBase = (float) $item->quantity * $transferFactor;
+        return (int) round($qtyInBase);
+    }
+
+    protected function resolveBaseUnitId(Unit $unit): int
+    {
+        $current = $unit;
+        $hops = 0;
+        while ($current->base_unit_id && $hops < 10) {
+            $parent = Unit::find($current->base_unit_id);
+            if (!$parent) break;
+            $current = $parent;
+            $hops++;
+        }
+        return (int) $current->id;
     }
 }

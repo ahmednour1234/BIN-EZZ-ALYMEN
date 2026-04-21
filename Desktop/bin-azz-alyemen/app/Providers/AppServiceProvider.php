@@ -21,6 +21,13 @@ use App\Repositories\Contracts\ProductRepositoryInterface;
 use App\Repositories\Contracts\StockTransferRepositoryInterface;
 use App\Repositories\Contracts\InventoryDispatchRepositoryInterface;
 use App\Repositories\Contracts\TaxRepositoryInterface;
+use App\Repositories\Contracts\PurchaseInvoiceRepositoryInterface;
+use App\Repositories\Contracts\PurchaseReturnRepositoryInterface;
+use App\Repositories\Contracts\ProductDepreciationRepositoryInterface;
+use App\Repositories\Contracts\SaleOrderRepositoryInterface;
+use App\Repositories\Contracts\SaleQuotationRepositoryInterface;
+use App\Repositories\Contracts\SaleReturnRepositoryInterface;
+use App\Repositories\Contracts\InstallmentPlanRepositoryInterface;
 use App\Repositories\Eloquent\AdminRepository;
 use App\Repositories\Eloquent\AreaRepository;
 use App\Repositories\Eloquent\BranchRepository;
@@ -40,6 +47,13 @@ use App\Repositories\Eloquent\ProductRepository;
 use App\Repositories\Eloquent\StockTransferRepository;
 use App\Repositories\Eloquent\InventoryDispatchRepository;
 use App\Repositories\Eloquent\TaxRepository;
+use App\Repositories\Eloquent\PurchaseInvoiceRepository;
+use App\Repositories\Eloquent\PurchaseReturnRepository;
+use App\Repositories\Eloquent\ProductDepreciationRepository;
+use App\Repositories\Eloquent\SaleOrderRepository;
+use App\Repositories\Eloquent\SaleQuotationRepository;
+use App\Repositories\Eloquent\SaleReturnRepository;
+use App\Repositories\Eloquent\InstallmentPlanRepository;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -65,6 +79,13 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(StockTransferRepositoryInterface::class, StockTransferRepository::class);
         $this->app->bind(InventoryDispatchRepositoryInterface::class, InventoryDispatchRepository::class);
         $this->app->bind(TaxRepositoryInterface::class, TaxRepository::class);
+        $this->app->bind(PurchaseInvoiceRepositoryInterface::class, PurchaseInvoiceRepository::class);
+        $this->app->bind(PurchaseReturnRepositoryInterface::class, PurchaseReturnRepository::class);
+        $this->app->bind(ProductDepreciationRepositoryInterface::class, ProductDepreciationRepository::class);
+        $this->app->bind(SaleOrderRepositoryInterface::class, SaleOrderRepository::class);
+        $this->app->bind(SaleQuotationRepositoryInterface::class, SaleQuotationRepository::class);
+        $this->app->bind(SaleReturnRepositoryInterface::class, SaleReturnRepository::class);
+        $this->app->bind(InstallmentPlanRepositoryInterface::class, InstallmentPlanRepository::class);
     }
 
     public function boot(): void

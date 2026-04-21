@@ -24,6 +24,14 @@ use App\Http\Controllers\ProductImportExportController;
 use App\Http\Controllers\StockTransferController;
 use App\Http\Controllers\InventoryDispatchController;
 use App\Http\Controllers\TaxController;
+use App\Http\Controllers\PurchaseInvoiceController;
+use App\Http\Controllers\PurchaseReturnController;
+use App\Http\Controllers\ProductDepreciationController;
+use App\Http\Controllers\BranchReportController;
+use App\Http\Controllers\SaleOrderController;
+use App\Http\Controllers\SaleQuotationController;
+use App\Http\Controllers\SaleReturnController;
+use App\Http\Controllers\InstallmentController;
 use Illuminate\Support\Facades\Route;
 
 // Guest Routes
@@ -239,6 +247,7 @@ Route::middleware('auth:admin')->group(function () {
     Route::middleware('permission:inventory-dispatches.view')->group(function () {
         Route::get('/inventory-dispatches', [InventoryDispatchController::class, 'index'])->name('inventory-dispatches.index');
         Route::get('/inventory-dispatches/{id}', [InventoryDispatchController::class, 'show'])->name('inventory-dispatches.show');
+        Route::get('/inventory-dispatches/{id}/pdf', [InventoryDispatchController::class, 'showPdf'])->name('inventory-dispatches.pdf');
     });
 
     // ─── Accounting Exports (Excel & PDF) ───
@@ -260,5 +269,68 @@ Route::middleware('auth:admin')->group(function () {
     });
     Route::middleware('permission:reports.view')->group(function () {
         Route::get('/reports/export/pdf', [AccountingExportController::class, 'reportsPdf'])->name('reports.export.pdf');
+    });
+
+    // Purchase Invoices
+    Route::middleware('permission:purchase-invoices.view')->group(function () {
+        Route::get('/purchase-invoices', [PurchaseInvoiceController::class, 'index'])->name('purchase-invoices.index');
+        Route::get('/purchase-invoices/export/pdf', [PurchaseInvoiceController::class, 'exportPdf'])->name('purchase-invoices.export.pdf');
+        Route::get('/purchase-invoices/create', [PurchaseInvoiceController::class, 'create'])->name('purchase-invoices.create')->middleware('permission:purchase-invoices.create');
+        Route::get('/purchase-invoices/{id}', [PurchaseInvoiceController::class, 'show'])->name('purchase-invoices.show');
+        Route::get('/purchase-invoices/{id}/edit', [PurchaseInvoiceController::class, 'edit'])->name('purchase-invoices.edit')->middleware('permission:purchase-invoices.edit');
+    });
+
+    // Purchase Returns
+    Route::middleware('permission:purchase-returns.view')->group(function () {
+        Route::get('/purchase-returns', [PurchaseReturnController::class, 'index'])->name('purchase-returns.index');
+        Route::get('/purchase-returns/export/pdf', [PurchaseReturnController::class, 'exportPdf'])->name('purchase-returns.export.pdf');
+        Route::get('/purchase-returns/create', [PurchaseReturnController::class, 'create'])->name('purchase-returns.create')->middleware('permission:purchase-returns.create');
+        Route::get('/purchase-returns/{id}/pdf', [PurchaseReturnController::class, 'showPdf'])->name('purchase-returns.show.pdf');
+    });
+
+    // Product Depreciations
+    Route::middleware('permission:product-depreciations.view')->group(function () {
+        Route::get('/product-depreciations', [ProductDepreciationController::class, 'index'])->name('product-depreciations.index');
+        Route::get('/product-depreciations/create', [ProductDepreciationController::class, 'create'])->name('product-depreciations.create')->middleware('permission:product-depreciations.create');
+        Route::get('/product-depreciations/{id}', [ProductDepreciationController::class, 'show'])->name('product-depreciations.show');
+        Route::get('/product-depreciations/{id}/pdf', [ProductDepreciationController::class, 'showPdf'])->name('product-depreciations.pdf');
+    });
+
+    // Sale Quotations
+    Route::middleware('permission:sale-quotations.view')->group(function () {
+        Route::get('/sale-quotations', [SaleQuotationController::class, 'index'])->name('sale-quotations.index');
+        Route::get('/sale-quotations/create', [SaleQuotationController::class, 'create'])->name('sale-quotations.create')->middleware('permission:sale-quotations.create');
+        Route::get('/sale-quotations/{id}', [SaleQuotationController::class, 'show'])->name('sale-quotations.show');
+        Route::get('/sale-quotations/{id}/pdf', [SaleQuotationController::class, 'showPdf'])->name('sale-quotations.pdf');
+    });
+
+    // Sale Orders
+    Route::middleware('permission:sale-orders.view')->group(function () {
+        Route::get('/sale-orders', [SaleOrderController::class, 'index'])->name('sale-orders.index');
+        Route::get('/sale-orders/create', [SaleOrderController::class, 'create'])->name('sale-orders.create')->middleware('permission:sale-orders.create');
+        Route::get('/sale-orders/{id}', [SaleOrderController::class, 'show'])->name('sale-orders.show');
+        Route::get('/sale-orders/{id}/pdf', [SaleOrderController::class, 'showPdf'])->name('sale-orders.pdf');
+    });
+
+    // Sale Returns
+    Route::middleware('permission:sale-returns.view')->group(function () {
+        Route::get('/sale-returns', [SaleReturnController::class, 'index'])->name('sale-returns.index');
+        Route::get('/sale-returns/create', [SaleReturnController::class, 'create'])->name('sale-returns.create')->middleware('permission:sale-returns.create');
+        Route::get('/sale-returns/{id}', [SaleReturnController::class, 'show'])->name('sale-returns.show');
+        Route::get('/sale-returns/{id}/pdf', [SaleReturnController::class, 'showPdf'])->name('sale-returns.pdf');
+    });
+
+    // Installments
+    Route::middleware('permission:installments.view')->group(function () {
+        Route::get('/installments', [InstallmentController::class, 'index'])->name('installments.index');
+        Route::get('/installments/create', [InstallmentController::class, 'create'])->name('installments.create')->middleware('permission:installments.create');
+        Route::get('/installments/{id}', [InstallmentController::class, 'show'])->name('installments.show');
+    });
+
+    // Branch Reports
+    Route::middleware('permission:reports.view')->group(function () {
+        Route::get('/reports/branch-inventory', [BranchReportController::class, 'inventory'])->name('reports.branch-inventory');
+        Route::get('/reports/branch-inventory/export/pdf', [BranchReportController::class, 'inventoryPdf'])->name('reports.branch-inventory.export.pdf');
+        Route::get('/reports/branch-movements', [BranchReportController::class, 'movements'])->name('reports.branch-movements');
     });
 });

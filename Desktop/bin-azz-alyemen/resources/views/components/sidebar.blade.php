@@ -30,11 +30,36 @@
         ['route' => 'products.index', 'icon' => 'cube', 'label' => 'المنتجات', 'permission' => 'products.view'],
         ['route' => 'stock-transfers.index', 'icon' => 'arrow-path', 'label' => 'تحويلات المخزون', 'permission' => 'stock-transfers.view'],
         ['route' => 'inventory-dispatches.index', 'icon' => 'clipboard-document-list', 'label' => 'أوامر الصرف', 'permission' => 'inventory-dispatches.view'],
+        ['route' => 'product-depreciations.index', 'icon' => 'archive-box-x-mark', 'label' => 'إهلاك المنتجات', 'permission' => 'product-depreciations.view'],
+    ];
+
+    $purchaseLinks = [
+        ['route' => 'purchase-invoices.index', 'icon' => 'document-text', 'label' => 'فواتير المشتريات', 'permission' => 'purchase-invoices.view'],
+        ['route' => 'purchase-returns.index', 'icon' => 'arrow-uturn-left', 'label' => 'مرتجعات المشتريات', 'permission' => 'purchase-returns.view'],
+    ];
+
+    $salesLinks = [
+        ['route' => 'sale-quotations.index', 'icon' => 'document-text', 'label' => 'عروض الأسعار', 'permission' => 'sale-quotations.view'],
+        ['route' => 'sale-orders.index', 'icon' => 'shopping-cart', 'label' => 'طلبات المبيعات', 'permission' => 'sale-orders.view'],
+        ['route' => 'sale-returns.index', 'icon' => 'arrow-uturn-left', 'label' => 'مرتجعات المبيعات', 'permission' => 'sale-returns.view'],
+    ];
+
+    $branchReportLinks = [
+        ['route' => 'reports.branch-inventory', 'icon' => 'chart-bar-square', 'label' => 'تقرير المخازن', 'permission' => 'reports.view'],
+        ['route' => 'reports.branch-movements', 'icon' => 'chart-bar-square', 'label' => 'حركة المخزون', 'permission' => 'reports.view'],
+    ];
+
+    $installmentLinks = [
+        ['route' => 'installments.index', 'icon' => 'credit-card', 'label' => 'التقسيط', 'permission' => 'installments.view'],
     ];
 
     $settingsActive = collect($settingsLinks)->contains(fn($l) => request()->routeIs($l['route'] . '*'));
     $accountingActive = collect($accountingLinks)->contains(fn($l) => request()->routeIs($l['route'] . '*'));
     $inventoryActive = collect($inventoryLinks)->contains(fn($l) => request()->routeIs($l['route'] . '*'));
+    $purchaseActive = collect($purchaseLinks)->contains(fn($l) => request()->routeIs($l['route'] . '*'));
+    $salesActive = collect($salesLinks)->contains(fn($l) => request()->routeIs($l['route'] . '*'));
+    $branchReportActive = collect($branchReportLinks)->contains(fn($l) => request()->routeIs($l['route'] . '*'));
+    $installmentActive = collect($installmentLinks)->contains(fn($l) => request()->routeIs($l['route'] . '*'));
 @endphp
 
 @php
@@ -42,11 +67,20 @@
         ['route' => 'products.index', 'icon' => 'cube', 'label' => 'المنتجات', 'permission' => 'products.view'],
         ['route' => 'stock-transfers.index', 'icon' => 'arrow-path', 'label' => 'تحويلات المخزون', 'permission' => 'stock-transfers.view'],
         ['route' => 'inventory-dispatches.index', 'icon' => 'clipboard-document-list', 'label' => 'أوامر الصرف', 'permission' => 'inventory-dispatches.view'],
+        ['route' => 'product-depreciations.index', 'icon' => 'archive-box-x-mark', 'label' => 'إهلاك المنتجات', 'permission' => 'product-depreciations.view'],
+    ];
+
+    $installmentLinks = [
+        ['route' => 'installments.index', 'icon' => 'credit-card', 'label' => 'التقسيط', 'permission' => 'installments.view'],
     ];
 
     $settingsActive = collect($settingsLinks)->contains(fn($l) => request()->routeIs($l['route'] . '*'));
     $accountingActive = collect($accountingLinks)->contains(fn($l) => request()->routeIs($l['route'] . '*'));
     $inventoryActive = collect($inventoryLinks)->contains(fn($l) => request()->routeIs($l['route'] . '*'));
+    $purchaseActive = collect($purchaseLinks)->contains(fn($l) => request()->routeIs($l['route'] . '*'));
+    $salesActive = collect($salesLinks)->contains(fn($l) => request()->routeIs($l['route'] . '*'));
+    $branchReportActive = collect($branchReportLinks)->contains(fn($l) => request()->routeIs($l['route'] . '*'));
+    $installmentActive = collect($installmentLinks)->contains(fn($l) => request()->routeIs($l['route'] . '*'));
 @endphp
 
 <aside class="fixed right-0 top-0 h-screen w-[270px] bg-gradient-to-b from-[#6B4F3A] via-[#5a3f2e] to-[#4a3426] text-white flex flex-col z-50 shadow-2xl">
@@ -184,6 +218,138 @@
                  x-cloak
                  class="mt-1 mr-6 border-r-2 border-white/10 pr-2 space-y-0.5">
                 @foreach ($inventoryLinks as $link)
+                    @if (auth('admin')->user()?->hasPermission($link['permission']))
+                        <a href="{{ route($link['route']) }}"
+                           class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-all duration-200
+                                  {{ request()->routeIs($link['route'] . '*') ? 'bg-white/15 text-white font-semibold' : 'text-white/55 hover:bg-white/8 hover:text-white/90' }}">
+                            <x-icon :name="$link['icon']" class="w-4 h-4 flex-shrink-0 {{ request()->routeIs($link['route'] . '*') ? 'text-amber-300' : '' }}" />
+                            <span>{{ $link['label'] }}</span>
+                        </a>
+                    @endif
+                @endforeach
+            </div>
+        </div>
+
+        {{-- المشتريات --}}
+        <div x-data="{ open: {{ $purchaseActive ? 'true' : 'false' }} }" class="px-3 mb-1">
+            <button @click="open = !open"
+                class="flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-sm transition-all duration-200
+                       {{ $purchaseActive ? 'bg-white/20 text-white font-bold shadow-lg shadow-black/10' : 'text-white/75 hover:bg-white/10 hover:text-white' }}">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg {{ $purchaseActive ? 'bg-amber-400/25' : 'bg-white/10' }} flex items-center justify-center flex-shrink-0">
+                        <x-icon name="document-text" class="w-[18px] h-[18px] {{ $purchaseActive ? 'text-amber-300' : '' }}" />
+                    </div>
+                    <span>المشتريات</span>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"
+                     class="w-3.5 h-3.5 transition-transform duration-300 text-white/50" :class="open ? 'rotate-180' : ''">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                </svg>
+            </button>
+            <div x-show="open"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 max-h-0"
+                 x-transition:enter-end="opacity-100 max-h-[400px]"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 x-cloak
+                 class="mt-1 mr-6 border-r-2 border-white/10 pr-2 space-y-0.5">
+                @foreach ($purchaseLinks as $link)
+                    @if (auth('admin')->user()?->hasPermission($link['permission']))
+                        <a href="{{ route($link['route']) }}"
+                           class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-all duration-200
+                                  {{ request()->routeIs($link['route'] . '*') ? 'bg-white/15 text-white font-semibold' : 'text-white/55 hover:bg-white/8 hover:text-white/90' }}">
+                            <x-icon :name="$link['icon']" class="w-4 h-4 flex-shrink-0 {{ request()->routeIs($link['route'] . '*') ? 'text-amber-300' : '' }}" />
+                            <span>{{ $link['label'] }}</span>
+                        </a>
+                    @endif
+                @endforeach
+            </div>
+        </div>
+
+        {{-- المبيعات --}}
+        <div x-data="{ open: {{ $salesActive ? 'true' : 'false' }} }" class="px-3 mb-1">
+            <button @click="open = !open"
+                class="flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-sm transition-all duration-200
+                       {{ $salesActive ? 'bg-white/20 text-white font-bold shadow-lg shadow-black/10' : 'text-white/75 hover:bg-white/10 hover:text-white' }}">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg {{ $salesActive ? 'bg-amber-400/25' : 'bg-white/10' }} flex items-center justify-center flex-shrink-0">
+                        <x-icon name="shopping-cart" class="w-[18px] h-[18px] {{ $salesActive ? 'text-amber-300' : '' }}" />
+                    </div>
+                    <span>المبيعات</span>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"
+                     class="w-3.5 h-3.5 transition-transform duration-300 text-white/50" :class="open ? 'rotate-180' : ''">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                </svg>
+            </button>
+            <div x-show="open"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 max-h-0"
+                 x-transition:enter-end="opacity-100 max-h-[400px]"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 x-cloak
+                 class="mt-1 mr-6 border-r-2 border-white/10 pr-2 space-y-0.5">
+                @foreach ($salesLinks as $link)
+                    @if (auth('admin')->user()?->hasPermission($link['permission']))
+                        <a href="{{ route($link['route']) }}"
+                           class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-all duration-200
+                                  {{ request()->routeIs($link['route'] . '*') ? 'bg-white/15 text-white font-semibold' : 'text-white/55 hover:bg-white/8 hover:text-white/90' }}">
+                            <x-icon :name="$link['icon']" class="w-4 h-4 flex-shrink-0 {{ request()->routeIs($link['route'] . '*') ? 'text-amber-300' : '' }}" />
+                            <span>{{ $link['label'] }}</span>
+                        </a>
+                    @endif
+                @endforeach
+            </div>
+        </div>
+
+        {{-- التقسيط --}}
+        @if(collect($installmentLinks)->filter(fn($l) => auth('admin')->user()?->hasPermission($l['permission']))->isNotEmpty())
+        <div class="px-3 mb-1">
+            @foreach($installmentLinks as $link)
+                @if(auth('admin')->user()?->hasPermission($link['permission']))
+                    <a href="{{ route($link['route']) }}"
+                       class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all duration-200
+                              {{ $installmentActive ? 'bg-white/20 text-white font-bold shadow-lg shadow-black/10' : 'text-white/75 hover:bg-white/10 hover:text-white' }}">
+                        <div class="w-8 h-8 rounded-lg {{ $installmentActive ? 'bg-amber-400/25' : 'bg-white/10' }} flex items-center justify-center flex-shrink-0">
+                            <x-icon name="credit-card" class="w-[18px] h-[18px] {{ $installmentActive ? 'text-amber-300' : '' }}" />
+                        </div>
+                        <span>{{ $link['label'] }}</span>
+                    </a>
+                @endif
+            @endforeach
+        </div>
+        @endif
+
+        {{-- تقارير المخازن --}}
+        <div x-data="{ open: {{ $branchReportActive ? 'true' : 'false' }} }" class="px-3 mb-1">
+            <button @click="open = !open"
+                class="flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-sm transition-all duration-200
+                       {{ $branchReportActive ? 'bg-white/20 text-white font-bold shadow-lg shadow-black/10' : 'text-white/75 hover:bg-white/10 hover:text-white' }}">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg {{ $branchReportActive ? 'bg-amber-400/25' : 'bg-white/10' }} flex items-center justify-center flex-shrink-0">
+                        <x-icon name="chart-bar-square" class="w-[18px] h-[18px] {{ $branchReportActive ? 'text-amber-300' : '' }}" />
+                    </div>
+                    <span>تقارير المخازن</span>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"
+                     class="w-3.5 h-3.5 transition-transform duration-300 text-white/50" :class="open ? 'rotate-180' : ''">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                </svg>
+            </button>
+            <div x-show="open"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 max-h-0"
+                 x-transition:enter-end="opacity-100 max-h-[400px]"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 x-cloak
+                 class="mt-1 mr-6 border-r-2 border-white/10 pr-2 space-y-0.5">
+                @foreach ($branchReportLinks as $link)
                     @if (auth('admin')->user()?->hasPermission($link['permission']))
                         <a href="{{ route($link['route']) }}"
                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-all duration-200

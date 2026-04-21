@@ -45,4 +45,9 @@ class InventoryDispatchRepository extends BaseRepository implements InventoryDis
     {
         return $this->paginateWithFilters($perPage, $search, null, null, null);
     }
+
+    public function getById(int $id)
+    {
+        return $this->model->with(['branch', 'delegate', 'admin', 'items.product.unit'])->findOrFail($id);
+    }
 }

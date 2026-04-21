@@ -10,32 +10,46 @@
         </x-button>
     </div>
 
-    {{-- Info Cards --}}
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div class="bg-card rounded-2xl shadow-sm border border-primary-100 p-5">
-            <p class="text-xs text-gray-500 mb-1">الفرع</p>
-            <p class="text-lg font-bold text-primary-700">{{ $dispatch->branch->name }}</p>
-        </div>
-        <div class="bg-card rounded-2xl shadow-sm border border-primary-100 p-5">
-            <p class="text-xs text-gray-500 mb-1">المندوب</p>
-            <p class="text-lg font-bold text-primary-700">{{ $dispatch->delegate->name }}</p>
-        </div>
-        <div class="bg-card rounded-2xl shadow-sm border border-primary-100 p-5">
-            <p class="text-xs text-gray-500 mb-1">المسؤول</p>
-            <p class="text-lg font-bold text-gray-700">{{ $dispatch->admin->name }}</p>
-        </div>
-        <div class="bg-card rounded-2xl shadow-sm border border-primary-100 p-5">
-            <p class="text-xs text-gray-500 mb-1">الحالة</p>
-            @php
-                $statusColors = [
-                    'pending' => 'text-gray-700',
-                    'dispatched' => 'text-blue-700',
-                    'partial_return' => 'text-orange-700',
-                    'returned' => 'text-yellow-700',
-                    'settled' => 'text-green-700',
-                ];
-            @endphp
-            <p class="text-lg font-bold {{ $statusColors[$dispatch->status] ?? 'text-gray-700' }}">{{ $dispatch->status_label }}</p>
+    {{-- Info Row --}}
+    @php
+        $statusColors = [
+            'pending'        => 'bg-gray-100 text-gray-700',
+            'dispatched'     => 'bg-blue-100 text-blue-700',
+            'partial_return' => 'bg-orange-100 text-orange-700',
+            'returned'       => 'bg-yellow-100 text-yellow-700',
+            'settled'        => 'bg-green-100 text-green-700',
+        ];
+    @endphp
+    <div class="bg-card rounded-2xl shadow-sm border border-primary-100 p-4 mb-6">
+        <div class="flex flex-wrap gap-3">
+            <div class="flex flex-col gap-0.5 bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 min-w-[120px]">
+                <span class="text-[11px] text-gray-400">الفرع</span>
+                <span class="font-bold text-primary-700 text-sm">{{ $dispatch->branch->name }}</span>
+            </div>
+            <div class="flex flex-col gap-0.5 bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 min-w-[140px]">
+                <span class="text-[11px] text-gray-400">المندوب</span>
+                <span class="font-bold text-primary-700 text-sm">{{ $dispatch->delegate->name }}</span>
+            </div>
+            <div class="flex flex-col gap-0.5 bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 min-w-[120px]">
+                <span class="text-[11px] text-gray-400">المسؤول</span>
+                <span class="font-bold text-gray-700 text-sm">{{ $dispatch->admin->name }}</span>
+            </div>
+            <div class="flex flex-col gap-0.5 bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 min-w-[110px]">
+                <span class="text-[11px] text-gray-400">التاريخ</span>
+                <span class="font-medium text-gray-700 text-sm">{{ $dispatch->date->format('Y/m/d') }}</span>
+            </div>
+            <div class="flex flex-col gap-0.5 bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 min-w-[90px]">
+                <span class="text-[11px] text-gray-400">الحالة</span>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold w-fit {{ $statusColors[$dispatch->status] ?? 'bg-gray-100 text-gray-700' }}">
+                    {{ $dispatch->status_label }}
+                </span>
+            </div>
+            @if($dispatch->notes)
+            <div class="flex flex-col gap-0.5 bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 flex-1 min-w-[140px]">
+                <span class="text-[11px] text-gray-400">ملاحظات</span>
+                <span class="text-gray-600 text-sm">{{ $dispatch->notes }}</span>
+            </div>
+            @endif
         </div>
     </div>
 
@@ -65,22 +79,37 @@
                 <thead class="bg-primary-50">
                     <tr>
                         <th class="px-6 py-3 text-right text-xs font-bold text-primary-700">المنتج</th>
-                        <th class="px-6 py-3 text-right text-xs font-bold text-primary-700">الكمية</th>
+                        <th class="px-6 py-3 text-right text-xs font-bold text-primary-700">الوحدة</th>
+                        <th class="px-6 py-3 text-center text-xs font-bold text-primary-700">الكمية المصروفة</th>
+                        <th class="px-6 py-3 text-center text-xs font-bold text-primary-700">المرتجع</th>
+                        <th class="px-6 py-3 text-center text-xs font-bold text-primary-700">معه الآن</th>
                         <th class="px-6 py-3 text-right text-xs font-bold text-primary-700">سعر التكلفة</th>
                         <th class="px-6 py-3 text-right text-xs font-bold text-primary-700">سعر البيع</th>
-                        <th class="px-6 py-3 text-right text-xs font-bold text-primary-700">المرتجع</th>
-                        <th class="px-6 py-3 text-right text-xs font-bold text-primary-700">المباع</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     @foreach($dispatch->items as $item)
+                    @php $unitSymbol = $item->product->unit?->symbol ?? ''; $remaining = $item->quantity - ($item->returned_quantity ?? 0); @endphp
                         <tr class="hover:bg-primary-50/50">
                             <td class="px-6 py-4 font-medium text-gray-800">{{ $item->product->name }}</td>
-                            <td class="px-6 py-4 text-gray-600">{{ $item->quantity }}</td>
+                            <td class="px-6 py-4 text-gray-500 text-xs">{{ $unitSymbol }}</td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700">
+                                    {{ $item->quantity }} {{ $unitSymbol }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-orange-100 text-orange-700">
+                                    {{ $item->returned_quantity ?? 0 }} {{ $unitSymbol }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold {{ $remaining > 0 ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700' }}">
+                                    {{ $remaining }} {{ $unitSymbol }}
+                                </span>
+                            </td>
                             <td class="px-6 py-4 text-gray-600" dir="ltr">{{ number_format($item->cost_price, 2) }}</td>
                             <td class="px-6 py-4 text-gray-600" dir="ltr">{{ number_format($item->selling_price, 2) }}</td>
-                            <td class="px-6 py-4 text-orange-600 font-medium">{{ $item->returned_quantity }}</td>
-                            <td class="px-6 py-4 text-green-600 font-bold">{{ $item->sold_quantity }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -107,17 +136,49 @@
         @if($showReturnForm)
             <div class="bg-orange-50 rounded-2xl border border-orange-200 p-6 mb-6">
                 <h3 class="text-lg font-bold text-orange-700 mb-4">تسجيل كميات مرتجعة</h3>
-                <div class="space-y-3">
-                    @foreach($dispatch->items as $item)
-                        <div class="flex items-center gap-4 bg-white rounded-xl p-4 border border-orange-100">
-                            <span class="flex-1 font-medium text-gray-700">{{ $item->product->name }} (الكمية: {{ $item->quantity }})</span>
-                            <div class="w-32">
-                                <label class="text-xs text-gray-500">الكمية المرتجعة</label>
-                                <input type="number" wire:model="returnQuantities.{{ $item->id }}" min="0" max="{{ $item->quantity }}"
-                                    class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
-                            </div>
-                        </div>
-                    @endforeach
+                <div class="overflow-x-auto rounded-xl border border-orange-100">
+                    <table class="w-full text-sm">
+                        <thead class="bg-orange-100/60">
+                            <tr>
+                                <th class="px-4 py-3 text-right font-semibold text-orange-700">المنتج</th>
+                                <th class="px-4 py-3 text-right font-semibold text-orange-700 w-44">وحدة الإرجاع</th>
+                                <th class="px-4 py-3 text-right font-semibold text-orange-700 w-40">الكمية المرتجعة</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-orange-100 bg-white">
+                            @foreach($dispatch->items as $item)
+                            @php $remaining = $item->quantity - ($item->returned_quantity ?? 0); @endphp
+                            @if($remaining > 0)
+                                <tr>
+                                    <td class="px-4 py-3 font-medium text-gray-700">
+                                        {{ $item->product->name }}
+                                        <span class="text-xs text-gray-400 mr-1">(متبقي: {{ $remaining }} {{ $item->product->unit?->symbol ?? '' }})</span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        @if(!empty($returnAvailableUnits[$item->id]))
+                                            <select wire:model.live="returnUnitIds.{{ $item->id }}"
+                                                class="w-full px-3 py-2 border border-orange-200 rounded-lg bg-white text-sm">
+                                                @foreach($returnAvailableUnits[$item->id] as $unitOpt)
+                                                    <option value="{{ $unitOpt['id'] }}">{{ $unitOpt['name'] }} ({{ $unitOpt['symbol'] }})</option>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            <span class="text-gray-400 text-xs">{{ $item->product->unit?->symbol ?? '—' }}</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <input type="number" wire:model="returnQuantities.{{ $item->id }}"
+                                            min="0" max="{{ $returnMaxQuantities[$item->id] ?? $remaining }}"
+                                            class="w-full px-3 py-2 border border-orange-200 rounded-lg text-sm bg-white">
+                                        @if(!empty($returnMaxQuantities[$item->id]))
+                                            <p class="text-[11px] text-gray-400 mt-1">الحد الأقصى: {{ $returnMaxQuantities[$item->id] }} {{ $returnUnitSymbols[$item->id] ?? '' }}</p>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endif
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
                 <div class="mt-4">
                     <x-button type="button" variant="primary" wire:click="submitReturn">
@@ -151,11 +212,4 @@
         @endif
     @endif
 
-    {{-- Notes --}}
-    @if($dispatch->notes)
-        <div class="bg-card rounded-2xl shadow-sm border border-primary-100 p-6">
-            <h3 class="text-lg font-bold text-primary-700 mb-2">ملاحظات</h3>
-            <p class="text-gray-600">{{ $dispatch->notes }}</p>
-        </div>
-    @endif
 </div>
