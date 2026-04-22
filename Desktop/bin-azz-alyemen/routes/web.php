@@ -32,6 +32,9 @@ use App\Http\Controllers\SaleOrderController;
 use App\Http\Controllers\SaleQuotationController;
 use App\Http\Controllers\SaleReturnController;
 use App\Http\Controllers\InstallmentController;
+use App\Http\Controllers\CollectionController;
+use App\Http\Controllers\SettingController;
+use App\Http\Controllers\TripController;
 use Illuminate\Support\Facades\Route;
 
 // Guest Routes
@@ -45,6 +48,9 @@ Route::middleware('auth:admin')->group(function () {
 
     // Dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Settings
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
 
     // Branches
     Route::middleware('permission:branches.view')->group(function () {
@@ -120,6 +126,7 @@ Route::middleware('auth:admin')->group(function () {
     // Customers
     Route::middleware('permission:customers.view')->group(function () {
         Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
+        Route::get('/customers/{id}', [CustomerController::class, 'show'])->name('customers.show');
     });
     Route::middleware('permission:customers.create')->group(function () {
         Route::get('/customers/create', [CustomerController::class, 'create'])->name('customers.create');
@@ -131,6 +138,7 @@ Route::middleware('auth:admin')->group(function () {
     // Delegates
     Route::middleware('permission:delegates.view')->group(function () {
         Route::get('/delegates', [DelegateController::class, 'index'])->name('delegates.index');
+        Route::get('/delegates/{id}', [DelegateController::class, 'show'])->name('delegates.show');
     });
     Route::middleware('permission:delegates.create')->group(function () {
         Route::get('/delegates/create', [DelegateController::class, 'create'])->name('delegates.create');
@@ -216,6 +224,21 @@ Route::middleware('auth:admin')->group(function () {
     // Reports
     Route::middleware('permission:reports.view')->group(function () {
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/income-statement', [ReportController::class, 'incomeStatement'])->name('reports.income-statement');
+        Route::get('/reports/account-statement', [ReportController::class, 'accountStatement'])->name('reports.account-statement');
+        Route::get('/reports/balance-sheet', [ReportController::class, 'balanceSheet'])->name('reports.balance-sheet');
+    });
+
+    // Trips
+    Route::middleware('permission:trips.view')->group(function () {
+        Route::get('/trips', [TripController::class, 'index'])->name('trips.index');
+        Route::get('/trips/create', [TripController::class, 'create'])->name('trips.create');
+        Route::get('/trips/{id}/edit', [TripController::class, 'edit'])->name('trips.edit');
+        Route::get('/trips/{id}/settle', [TripController::class, 'settle'])->name('trips.settle');
+        Route::get('/trips/{id}/pdf', [TripController::class, 'pdf'])->name('trips.pdf');
+        Route::get('/trips/{id}', [TripController::class, 'show'])->name('trips.show');
+        Route::get('/booking-requests', [TripController::class, 'bookingRequests'])->name('trips.booking-requests');
+        Route::get('/booking-requests/create', [TripController::class, 'createBookingRequest'])->name('trips.booking-requests.create');
     });
 
     // Products
@@ -326,6 +349,11 @@ Route::middleware('auth:admin')->group(function () {
         Route::get('/installments/create', [InstallmentController::class, 'create'])->name('installments.create')->middleware('permission:installments.create');
         Route::get('/installments/{id}', [InstallmentController::class, 'show'])->name('installments.show');
     });
+
+    // Collections (تحصيلات)
+    Route::get('/collections', [CollectionController::class, 'index'])->name('collections.index')->middleware('permission:collections.view');
+    Route::get('/collections/create', [CollectionController::class, 'create'])->name('collections.create')->middleware('permission:collections.create');
+    Route::get('/collections/{id}', [CollectionController::class, 'show'])->name('collections.show')->middleware('permission:collections.view');
 
     // Branch Reports
     Route::middleware('permission:reports.view')->group(function () {

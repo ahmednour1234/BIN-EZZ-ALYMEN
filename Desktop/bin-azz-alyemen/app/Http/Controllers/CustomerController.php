@@ -18,4 +18,9 @@ class CustomerController extends Controller
     {
         return view('pages.customers.edit', compact('id'));
     }
+
+    public function show(int $id)
+    {
+        return view('pages.customers.show', compact('id'));
+    }
 }

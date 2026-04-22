@@ -13,6 +13,40 @@
         </div>
     </div>
 
+    {{-- Accounting Reports Quick Links --}}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6" dir="rtl">
+        <a href="{{ route('reports.income-statement') }}"
+           class="flex items-center gap-4 bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:border-primary-300 hover:shadow-md transition-all group">
+            <div class="w-11 h-11 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0 group-hover:bg-green-200 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-green-700" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941"/></svg>
+            </div>
+            <div>
+                <p class="font-bold text-gray-800 text-sm">قائمة الدخل</p>
+                <p class="text-xs text-gray-400">الإيرادات والمصروفات وصافي الربح</p>
+            </div>
+        </a>
+        <a href="{{ route('reports.account-statement') }}"
+           class="flex items-center gap-4 bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:border-primary-300 hover:shadow-md transition-all group">
+            <div class="w-11 h-11 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-200 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-700" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z"/></svg>
+            </div>
+            <div>
+                <p class="font-bold text-gray-800 text-sm">كشف الحساب</p>
+                <p class="text-xs text-gray-400">حركات الحسابات المدين والدائن</p>
+            </div>
+        </a>
+        <a href="{{ route('reports.balance-sheet') }}"
+           class="flex items-center gap-4 bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:border-primary-300 hover:shadow-md transition-all group">
+            <div class="w-11 h-11 rounded-xl bg-primary-100 flex items-center justify-center flex-shrink-0 group-hover:bg-primary-200 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-primary-700" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6l3 1m0 0-3 9a5.002 5.002 0 0 0 6.001 0M6 7l3 9M6 7l6-2m6 2 3-1m-3 1-3 9a5.002 5.002 0 0 0 6.001 0M18 7l3 9m-3-9-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>
+            </div>
+            <div>
+                <p class="font-bold text-gray-800 text-sm">الميزانية العمومية</p>
+                <p class="text-xs text-gray-400">الأصول والالتزامات وحقوق الملكية</p>
+            </div>
+        </a>
+    </div>
+
     {{-- Date Filters --}}
     <div class="bg-card rounded-2xl shadow-sm border border-primary-100 p-4 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

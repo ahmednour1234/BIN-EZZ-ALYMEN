@@ -50,8 +50,38 @@
                 <span class="text-gray-600 text-sm">{{ $dispatch->notes }}</span>
             </div>
             @endif
+            @if($dispatch->trip_id)
+            <div class="flex flex-col gap-0.5 bg-primary-50 border border-primary-200 rounded-xl px-4 py-2.5 min-w-[160px]">
+                <span class="text-[11px] text-primary-500">الرحلة المرتبطة</span>
+                <a href="{{ route('trips.show', $dispatch->trip_id) }}" class="font-bold text-primary-700 text-sm hover:underline">
+                    {{ $dispatch->trip?->trip_number ?? '#'.$dispatch->trip_id }}
+                </a>
+                <span class="text-xs mt-0.5 font-semibold {{ $dispatch->trip?->status === 'settled' ? 'text-green-600' : 'text-amber-600' }}">
+                    {{ $dispatch->trip?->statusLabel() ?? '' }}
+                    @if($dispatch->trip?->status === 'settled')
+                    — سوّاها {{ $dispatch->trip?->settler?->name ?? '' }}
+                    @endif
+                </span>
+            </div>
+            @endif
         </div>
     </div>
+
+    @if($dispatch->status === 'settled')
+    <div class="bg-green-50 border border-green-200 rounded-2xl p-4 mb-4 flex items-center gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-green-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+        <div>
+            <p class="text-sm font-bold text-green-800">تمت تسوية هذا الأمر ضمن رحلة المندوب</p>
+            @if($dispatch->trip)
+            <p class="text-xs text-green-600">
+                الرحلة: <a href="{{ route('trips.show', $dispatch->trip_id) }}" class="font-bold hover:underline">{{ $dispatch->trip->trip_number }}</a>
+                | سوّاها: {{ $dispatch->trip->settler?->name ?? '—' }}
+                | {{ $dispatch->trip->settled_at?->format('Y-m-d') ?? '—' }}
+            </p>
+            @endif
+        </div>
+    </div>
+    @endif
 
     {{-- Financial Summary --}}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">

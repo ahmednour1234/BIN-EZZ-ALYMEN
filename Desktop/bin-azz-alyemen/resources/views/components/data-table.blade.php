@@ -4,9 +4,9 @@
     <div class="overflow-x-auto">
         <table class="w-full text-sm">
             <thead>
-                <tr class="bg-gradient-to-l from-primary-700 to-primary-600">
+                <tr class="bg-primary-700">
                     @foreach($headers as $header)
-                        <th class="px-5 py-4 text-right font-bold text-white whitespace-nowrap first:rounded-tr-2xl last:rounded-tl-2xl text-xs tracking-wide">{{ $header }}</th>
+                        <th class="px-5 py-4 text-right font-bold text-white whitespace-nowrap text-xs tracking-wide">{{ $header }}</th>
                     @endforeach
                 </tr>
             </thead>

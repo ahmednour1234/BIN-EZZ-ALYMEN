@@ -59,4 +59,19 @@ class Delegate extends Model
     {
         return $this->belongsToMany(Category::class, 'delegate_category');
     }
+
+    public function trips()
+    {
+        return $this->hasMany(Trip::class);
+    }
+
+    public function bookingRequests()
+    {
+        return $this->hasMany(TripBookingRequest::class);
+    }
+
+    public function loans()
+    {
+        return $this->hasMany(DelegateLoan::class);
+    }
 }

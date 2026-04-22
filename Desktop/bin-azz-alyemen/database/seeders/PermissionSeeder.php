@@ -156,6 +156,13 @@ class PermissionSeeder extends Seeder
             ['name' => 'product-depreciations.view', 'display_name' => 'عرض إهلاك المنتجات', 'group_name' => 'إهلاك المنتجات'],
             ['name' => 'product-depreciations.create', 'display_name' => 'إنشاء طلب إهلاك', 'group_name' => 'إهلاك المنتجات'],
             ['name' => 'product-depreciations.approve', 'display_name' => 'موافقة/رفض طلب إهلاك', 'group_name' => 'إهلاك المنتجات'],
+
+            // Trips
+            ['name' => 'trips.view', 'display_name' => 'عرض الرحلات', 'group_name' => 'الرحلات'],
+            ['name' => 'trips.create', 'display_name' => 'إنشاء رحلة', 'group_name' => 'الرحلات'],
+            ['name' => 'trips.edit', 'display_name' => 'تعديل رحلة', 'group_name' => 'الرحلات'],
+            ['name' => 'trips.settle', 'display_name' => 'تسوية رحلة', 'group_name' => 'الرحلات'],
+            ['name' => 'trips.approve-settlement', 'display_name' => 'موافقة/رفض تسوية رحلة', 'group_name' => 'الرحلات'],
         ];
 
         foreach ($permissions as $permission) {

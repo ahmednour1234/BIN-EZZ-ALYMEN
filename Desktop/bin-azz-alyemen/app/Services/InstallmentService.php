@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\InstallmentEntry;
 use App\Models\InstallmentPlan;
+use App\Models\SaleOrder;
 use App\Models\Treasury;
 use App\Repositories\Contracts\InstallmentPlanRepositoryInterface;
 use Carbon\Carbon;
@@ -174,6 +175,21 @@ class InstallmentService
             $allPaid = $plan->entries()->where('status', '!=', 'paid')->doesntExist();
             if ($allPaid) {
                 $plan->update(['status' => 'completed']);
+            }
+
+            // If plan is linked to a sale order → sync its paid_amount from all plan entries
+            if ($plan->reference_type === 'sale_order' && $plan->reference_id) {
+                $order = SaleOrder::find($plan->reference_id);
+                if ($order) {
+                    // Sum all entry paid_amounts + down payment to get total paid via this plan
+                    $totalPaidViaEntries = (float) $plan->entries()->sum('paid_amount') + (float) $plan->down_payment;
+                    $newPaid = min(round($totalPaidViaEntries, 2), (float) $order->total);
+                    $newStatus = $newPaid >= (float) $order->total ? 'paid' : 'partial_paid';
+                    $order->update([
+                        'paid_amount' => $newPaid,
+                        'status'      => $newStatus,
+                    ]);
+                }
             }
 
             // Auto mark overdue entries on check

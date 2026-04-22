@@ -148,4 +148,9 @@ class SaleOrder extends Model
     {
         return $this->hasMany(SaleReturn::class);
     }
+
+    public function trip()
+    {
+        return $this->belongsTo(Trip::class);
+    }
 }

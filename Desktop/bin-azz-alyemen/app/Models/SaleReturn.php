@@ -102,4 +102,9 @@ class SaleReturn extends Model
     {
         return $this->hasMany(SaleReturnItem::class);
     }
+
+    public function trip()
+    {
+        return $this->belongsTo(Trip::class);
+    }
 }
