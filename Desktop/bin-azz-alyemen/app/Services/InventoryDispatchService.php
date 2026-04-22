@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\InventoryDispatch;
+use App\Models\Trip;
 use App\Repositories\Contracts\InventoryDispatchRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 
@@ -28,10 +29,32 @@ class InventoryDispatchService
             $totalCost = 0;
             $expectedSales = 0;
 
+            // Auto-link or auto-create trip for this delegate
+            if (!empty($data['delegate_id']) && empty($data['trip_id'])) {
+                $trip = Trip::where('delegate_id', $data['delegate_id'])
+                    ->whereIn('status', ['draft', 'active'])
+                    ->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
+                    ->orderByDesc('id')
+                    ->first();
+
+                if (!$trip) {
+                    $trip = Trip::create([
+                        'delegate_id' => $data['delegate_id'],
+                        'branch_id'   => $data['branch_id'],
+                        'admin_id'    => $data['admin_id'] ?? null,
+                        'status'      => 'active',
+                        'start_date'  => $data['date'] ?? now()->toDateString(),
+                    ]);
+                }
+
+                $data['trip_id'] = $trip->id;
+            }
+
             $dispatch = $this->dispatchRepository->create(array_merge($data, [
                 'total_cost' => 0,
                 'expected_sales' => 0,
             ]));
+
 
             foreach ($items as $item) {
                 $dispatch->items()->create([

@@ -10,6 +10,7 @@ class StockTransferItem extends Model
         'stock_transfer_id',
         'product_id',
         'quantity',
+        'unit_id',
     ];
 
     public function stockTransfer()
@@ -20,5 +21,10 @@ class StockTransferItem extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class);
     }
 }

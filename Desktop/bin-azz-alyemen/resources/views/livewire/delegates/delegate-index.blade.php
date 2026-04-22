@@ -87,6 +87,9 @@
                 </td>
                 <td class="px-6 py-4">
                     <div class="flex items-center gap-2">
+                        <a href="{{ route('delegates.show', $delegate) }}" class="p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors" title="عرض الملف">
+                            <x-icon name="eye" class="w-4 h-4" />
+                        </a>
                         @if(auth('admin')->user()?->hasPermission('delegates.edit'))
                             <button wire:click="toggleActive({{ $delegate->id }})"
                                 class="p-2 {{ $delegate->is_active ? 'text-orange-600 hover:bg-orange-50' : 'text-green-600 hover:bg-green-50' }} rounded-lg transition-colors"

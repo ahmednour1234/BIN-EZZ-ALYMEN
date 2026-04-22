@@ -18,6 +18,7 @@ class Supplier extends Model
         'address',
         'opening_balance',
         'credit_limit',
+        'balance',
         'notes',
         'is_active',
     ];
@@ -27,7 +28,18 @@ class Supplier extends Model
         return [
             'opening_balance' => 'decimal:2',
             'credit_limit' => 'decimal:2',
+            'balance' => 'decimal:2',
             'is_active' => 'boolean',
         ];
+    }
+
+    public function purchaseInvoices()
+    {
+        return $this->hasMany(PurchaseInvoice::class);
+    }
+
+    public function purchaseReturns()
+    {
+        return $this->hasMany(PurchaseReturn::class);
     }
 }

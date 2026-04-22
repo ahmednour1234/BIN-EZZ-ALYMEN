@@ -19,6 +19,7 @@ class Customer extends Model
         'longitude',
         'credit_limit',
         'opening_balance',
+        'balance',
         'classification',
         'is_active',
     ];
@@ -26,17 +27,28 @@ class Customer extends Model
     protected function casts(): array
     {
         return [
-            'latitude' => 'decimal:7',
-            'longitude' => 'decimal:7',
-            'credit_limit' => 'decimal:2',
+            'latitude'        => 'decimal:7',
+            'longitude'       => 'decimal:7',
+            'credit_limit'    => 'decimal:2',
             'opening_balance' => 'decimal:2',
-            'is_active' => 'boolean',
+            'balance'         => 'decimal:2',
+            'is_active'       => 'boolean',
         ];
     }
 
     public function area()
     {
         return $this->belongsTo(Area::class);
+    }
+
+    public function saleOrders()
+    {
+        return $this->hasMany(SaleOrder::class);
+    }
+
+    public function saleReturns()
+    {
+        return $this->hasMany(SaleReturn::class);
     }
 
     public static function classificationLabels(): array

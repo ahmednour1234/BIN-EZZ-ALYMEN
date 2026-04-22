@@ -63,43 +63,66 @@
 
                 @error('items') <p class="text-red-500 text-xs mb-3">{{ $message }}</p> @enderror
 
-                <div class="space-y-3">
-                    @foreach($items as $index => $item)
-                        <div class="flex items-start gap-3 bg-gray-50 rounded-xl p-4 border border-gray-100">
-                            <div class="flex-1">
-                                <label class="block text-xs text-gray-500 mb-1">المنتج</label>
-                                <select wire:model="items.{{ $index }}.product_id"
-                                    class="w-full px-3 py-2 border border-gray-200 rounded-lg bg-white text-sm">
-                                    <option value="">-- اختر --</option>
-                                    @foreach($products as $product)
-                                        <option value="{{ $product->id }}">
-                                            {{ $product->name }} (متاح: {{ $product->branches->first()?->pivot->quantity ?? 0 }} {{ $product->unit->symbol ?? '' }})
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error("items.{$index}.product_id") <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                            </div>
-                            <div class="w-40">
-                                <label class="block text-xs text-gray-500 mb-1">الكمية</label>
-                                <div class="relative">
-                                    <input type="number" wire:model="items.{{ $index }}.quantity" min="1"
-                                        class="w-full px-3 py-2 pl-14 border border-gray-200 rounded-lg bg-white text-sm">
-                                    @php
-                                        $selectedProduct = $products->firstWhere('id', $item['product_id'] ?? null);
-                                    @endphp
-                                    @if($selectedProduct && $selectedProduct->unit)
-                                        <span class="absolute left-2 top-1/2 -translate-y-1/2 text-xs font-medium text-primary-600 bg-primary-50 px-1.5 py-0.5 rounded">{{ $selectedProduct->unit->symbol }}</span>
-                                    @endif
-                                </div>
-                                @error("items.{$index}.quantity") <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                            </div>
-                            @if(count($items) > 1)
-                                <button type="button" wire:click="removeItem({{ $index }})" class="mt-6 p-2 text-red-500 hover:bg-red-50 rounded-lg">
-                                    <x-icon name="trash" class="w-4 h-4" />
-                                </button>
-                            @endif
-                        </div>
-                    @endforeach
+                <div class="overflow-x-auto rounded-xl border border-gray-100">
+                    <table class="w-full text-sm">
+                        <thead class="bg-primary-50/60">
+                            <tr>
+                                <th class="px-4 py-3 text-right font-semibold text-primary-700">المنتج</th>
+                                <th class="px-4 py-3 text-right font-semibold text-primary-700 w-44">وحدة التحويل</th>
+                                <th class="px-4 py-3 text-right font-semibold text-primary-700 w-40">الكمية</th>
+                                <th class="px-4 py-3 text-center font-semibold text-primary-700 w-16">حذف</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 bg-white">
+                            @foreach($items as $index => $item)
+                                <tr wire:key="transfer-item-{{ $index }}" class="align-top">
+                                    <td class="px-4 py-3">
+                                        <select wire:model.live="items.{{ $index }}.product_id"
+                                            class="w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-white text-sm">
+                                            <option value="">-- اختر --</option>
+                                            @foreach($products as $product)
+                                                <option value="{{ $product->id }}">
+                                                    {{ $product->name }}
+                                                    (متاح: {{ $product->branches->first()?->pivot->quantity ?? 0 }} {{ $product->unit?->symbol ?? '' }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error("items.{$index}.product_id")<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        @if(!empty($item['available_units']))
+                                            <select wire:model.live="items.{{ $index }}.unit_id"
+                                                class="w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-white text-sm">
+                                                @foreach($item['available_units'] as $unitOption)
+                                                    <option value="{{ $unitOption['id'] }}">{{ $unitOption['name'] }} ({{ $unitOption['symbol'] }})</option>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            <div class="px-3 py-2.5 bg-gray-50 rounded-lg text-sm text-gray-400 border border-gray-100">—</div>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <input type="number" wire:model.live="items.{{ $index }}.quantity"
+                                            min="1" max="{{ $item['max_quantity'] ?? '' }}"
+                                            class="w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-white text-sm">
+                                        @if(!empty($item['max_quantity']) && (int)$item['max_quantity'] > 0)
+                                            <p class="text-[11px] text-gray-400 mt-1">الحد الأقصى: {{ $item['max_quantity'] }} {{ $item['unit_symbol'] ?? '' }}</p>
+                                        @endif
+                                        @error("items.{$index}.quantity")<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        @if(count($items) > 1)
+                                            <button type="button" wire:click="removeItem({{ $index }})" class="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg">
+                                                <x-icon name="x-mark" class="w-4 h-4" />
+                                            </button>
+                                        @else
+                                            <span class="text-gray-300 text-xs">-</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
 

@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
-class Delegate extends Model
+class Delegate extends Authenticatable
 {
-    use SoftDeletes;
+    use HasApiTokens, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -58,5 +59,20 @@ class Delegate extends Model
     public function categories()
     {
         return $this->belongsToMany(Category::class, 'delegate_category');
+    }
+
+    public function trips()
+    {
+        return $this->hasMany(Trip::class);
+    }
+
+    public function bookingRequests()
+    {
+        return $this->hasMany(TripBookingRequest::class);
+    }
+
+    public function loans()
+    {
+        return $this->hasMany(DelegateLoan::class);
     }
 }

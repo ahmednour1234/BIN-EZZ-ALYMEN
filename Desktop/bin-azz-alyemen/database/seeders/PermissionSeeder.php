@@ -122,6 +122,47 @@ class PermissionSeeder extends Seeder
             ['name' => 'inventory-dispatches.create', 'display_name' => 'إنشاء أمر صرف', 'group_name' => 'أوامر الصرف'],
             ['name' => 'inventory-dispatches.edit', 'display_name' => 'تعديل أمر صرف', 'group_name' => 'أوامر الصرف'],
             ['name' => 'inventory-dispatches.delete', 'display_name' => 'حذف أمر صرف', 'group_name' => 'أوامر الصرف'],
+
+            // Purchase Invoices
+            ['name' => 'purchase-invoices.view', 'display_name' => 'عرض فواتير المشتريات', 'group_name' => 'فواتير المشتريات'],
+            ['name' => 'purchase-invoices.create', 'display_name' => 'إنشاء فاتورة مشتريات', 'group_name' => 'فواتير المشتريات'],
+            ['name' => 'purchase-invoices.edit', 'display_name' => 'تعديل فاتورة مشتريات', 'group_name' => 'فواتير المشتريات'],
+            ['name' => 'purchase-invoices.delete', 'display_name' => 'حذف فاتورة مشتريات', 'group_name' => 'فواتير المشتريات'],
+
+            // Purchase Returns
+            ['name' => 'purchase-returns.view', 'display_name' => 'عرض مرتجعات المشتريات', 'group_name' => 'مرتجعات المشتريات'],
+            ['name' => 'purchase-returns.create', 'display_name' => 'إنشاء مرتجع مشتريات', 'group_name' => 'مرتجعات المشتريات'],
+
+            // Sale Quotations
+            ['name' => 'sale-quotations.view', 'display_name' => 'عرض عروض الأسعار', 'group_name' => 'عروض الأسعار'],
+            ['name' => 'sale-quotations.create', 'display_name' => 'إنشاء عرض سعر', 'group_name' => 'عروض الأسعار'],
+            ['name' => 'sale-quotations.edit', 'display_name' => 'تعديل عرض سعر', 'group_name' => 'عروض الأسعار'],
+
+            // Sale Orders
+            ['name' => 'sale-orders.view', 'display_name' => 'عرض طلبات المبيعات', 'group_name' => 'طلبات المبيعات'],
+            ['name' => 'sale-orders.create', 'display_name' => 'إنشاء طلب مبيعات', 'group_name' => 'طلبات المبيعات'],
+            ['name' => 'sale-orders.edit', 'display_name' => 'تعديل/إلغاء طلب مبيعات', 'group_name' => 'طلبات المبيعات'],
+
+            // Sale Returns
+            ['name' => 'sale-returns.view', 'display_name' => 'عرض مرتجعات المبيعات', 'group_name' => 'مرتجعات المبيعات'],
+            ['name' => 'sale-returns.create', 'display_name' => 'إنشاء/تأكيد مرتجع مبيعات', 'group_name' => 'مرتجعات المبيعات'],
+
+            // Installments
+            ['name' => 'installments.view', 'display_name' => 'عرض خطط التقسيط', 'group_name' => 'التقسيط'],
+            ['name' => 'installments.create', 'display_name' => 'إنشاء خطة تقسيط', 'group_name' => 'التقسيط'],
+            ['name' => 'installments.edit', 'display_name' => 'تعديل/إلغاء خطة تقسيط', 'group_name' => 'التقسيط'],
+
+            // Product Depreciations
+            ['name' => 'product-depreciations.view', 'display_name' => 'عرض إهلاك المنتجات', 'group_name' => 'إهلاك المنتجات'],
+            ['name' => 'product-depreciations.create', 'display_name' => 'إنشاء طلب إهلاك', 'group_name' => 'إهلاك المنتجات'],
+            ['name' => 'product-depreciations.approve', 'display_name' => 'موافقة/رفض طلب إهلاك', 'group_name' => 'إهلاك المنتجات'],
+
+            // Trips
+            ['name' => 'trips.view', 'display_name' => 'عرض الرحلات', 'group_name' => 'الرحلات'],
+            ['name' => 'trips.create', 'display_name' => 'إنشاء رحلة', 'group_name' => 'الرحلات'],
+            ['name' => 'trips.edit', 'display_name' => 'تعديل رحلة', 'group_name' => 'الرحلات'],
+            ['name' => 'trips.settle', 'display_name' => 'تسوية رحلة', 'group_name' => 'الرحلات'],
+            ['name' => 'trips.approve-settlement', 'display_name' => 'موافقة/رفض تسوية رحلة', 'group_name' => 'الرحلات'],
         ];
 
         foreach ($permissions as $permission) {

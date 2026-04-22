@@ -13,6 +13,7 @@ class InventoryDispatch extends Model
         'branch_id',
         'delegate_id',
         'admin_id',
+        'trip_id',
         'status',
         'total_cost',
         'expected_sales',
@@ -49,6 +50,11 @@ class InventoryDispatch extends Model
     public function items()
     {
         return $this->hasMany(InventoryDispatchItem::class);
+    }
+
+    public function trip()
+    {
+        return $this->belongsTo(Trip::class);
     }
 
     public static function statusLabels(): array

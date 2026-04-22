@@ -94,7 +94,7 @@
 
     <div class="meta clearfix">
         <div class="meta-right">تاريخ الطباعة: {{ now()->format('Y-m-d H:i') }}</div>
-        <div class="meta-left">عدد السجلات: {{ count($data) }}</div>
+        <div class="meta-left">عدد السجلات: {{ isset($data) ? count($data) : 1 }}</div>
     </div>
 
     @yield('content')

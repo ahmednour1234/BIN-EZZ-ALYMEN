@@ -14,6 +14,11 @@ class DelegateController extends Controller
         return view('pages.delegates.create');
     }
 
+    public function show(int $id)
+    {
+        return view('pages.delegates.show', compact('id'));
+    }
+
     public function edit(int $id)
     {
         return view('pages.delegates.edit', compact('id'));

@@ -13,17 +13,31 @@
     @stack('styles')
 </head>
 <body class="font-sans antialiased bg-surface text-gray-800">
-    <div class="flex min-h-screen">
+    <div x-data="{ sidebarOpen: false }" class="flex min-h-screen">
+        {{-- Mobile Overlay --}}
+        <div
+            x-show="sidebarOpen"
+            x-cloak
+            @click="sidebarOpen = false"
+            x-transition:enter="transition-opacity ease-linear duration-300"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition-opacity ease-linear duration-300"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="fixed inset-0 bg-black/50 z-40 lg:hidden">
+        </div>
+
         {{-- Sidebar --}}
         <x-sidebar />
 
         {{-- Main Content --}}
-        <div class="flex-1 flex flex-col mr-[270px]">
+        <div class="flex-1 flex flex-col lg:mr-[270px] min-w-0">
             {{-- Navbar --}}
             <x-navbar />
 
             {{-- Page Content --}}
-            <main class="flex-1 p-6">
+            <main class="flex-1 p-4 lg:p-6">
                 {{-- Flash Messages --}}
                 @if (session('success'))
                     <x-alert type="success" :message="session('success')" />
