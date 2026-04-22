@@ -17,6 +17,7 @@ class SaleOrder extends Model
         'admin_id',
         'delegate_id',
         'treasury_id',
+        'trip_id',
         'date',
         'due_date',
         'subtotal',

@@ -16,6 +16,7 @@ class Collection extends Model
         'branch_id',
         'treasury_id',
         'admin_id',
+        'trip_id',
         'collection_date',
         'total_amount',
         'status',

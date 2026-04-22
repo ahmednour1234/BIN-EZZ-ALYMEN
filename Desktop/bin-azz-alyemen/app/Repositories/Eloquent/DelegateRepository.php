@@ -12,6 +12,11 @@ class DelegateRepository extends BaseRepository implements DelegateRepositoryInt
         parent::__construct($model);
     }
 
+    public function findByEmail(string $email): ?Delegate
+    {
+        return $this->model->where('email', $email)->first();
+    }
+
     protected function applySearch($query, string $search)
     {
         return $query->where(function ($q) use ($search) {

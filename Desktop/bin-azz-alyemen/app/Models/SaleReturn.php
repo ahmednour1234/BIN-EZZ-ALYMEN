@@ -16,6 +16,7 @@ class SaleReturn extends Model
         'branch_id',
         'admin_id',
         'treasury_id',
+        'trip_id',
         'date',
         'subtotal',
         'refund_amount',
