@@ -37,7 +37,8 @@ class ProductController extends Controller
      */
     public function index(Request $request, Category $category): JsonResponse
     {
-        $delegate = $request->user();
+        $delegate    = $request->user();
+        $branchIds   = $delegate->branches()->pluck('branches.id');
 
         // Verify the category is actually assigned to this delegate
         $assigned = $delegate->categories()->where('categories.id', $category->id)->exists();
@@ -48,26 +49,95 @@ class ProductController extends Controller
 
         $products = $category->products()
             ->where('is_active', true)
-            ->with(['unit:id,name', 'tax:id,name,rate,type'])
+            ->with([
+                'unit.derivedUnits',
+                'unit.baseUnit.derivedUnits',
+                'tax:id,name,rate,type',
+                'branches' => fn ($q) => $q->whereIn('branch_id', $branchIds),
+            ])
             ->select('id', 'name', 'image', 'category_id', 'unit_id', 'tax_id', 'selling_price', 'discount', 'discount_type')
             ->get()
             ->map(function ($product) {
+                $unit              = $product->unit;
+                $availableUnits    = [];
+                // Total stock in product's base unit across delegate's branches
+                $stockInBaseUnit   = $product->branches->sum('pivot.quantity');
+
+                if ($unit) {
+                    // Build the full unit family (base unit + all derived of same type)
+                    if ($unit->isBaseUnit()) {
+                        $familyUnits = collect([$unit])->merge($unit->derivedUnits);
+                    } else {
+                        $base        = $unit->baseUnit;
+                        $familyUnits = $base
+                            ? collect([$base])->merge($base->derivedUnits)
+                            : collect([$unit]);
+                    }
+
+                    $productFactor = (float) $unit->conversion_factor;
+
+                    $availableUnits = $familyUnits->map(function ($u) use ($product, $productFactor, $stockInBaseUnit) {
+                        $factor    = (float) $u->conversion_factor / $productFactor;
+                        $sellPrice = round((float) $product->selling_price * $factor, 2);
+
+                        // Stock converted to this unit
+                        $stockInThisUnit = $u->conversion_factor > 0
+                            ? floor($stockInBaseUnit * $productFactor / $u->conversion_factor)
+                            : 0;
+
+                        // Discount
+                        $discountAmount = 0;
+                        if ($product->discount > 0) {
+                            if ($product->discount_type === 'percentage') {
+                                $discountAmount = round($sellPrice * $product->discount / 100, 2);
+                            } else {
+                                $discountAmount = round((float) $product->discount * $factor, 2);
+                            }
+                        }
+                        $netPrice = round(max(0, $sellPrice - $discountAmount), 2);
+
+                        // Tax
+                        $taxAmount = 0;
+                        if ($product->tax) {
+                            $taxAmount = $product->tax->type === 'percentage'
+                                ? round($netPrice * $product->tax->rate / 100, 2)
+                                : round((float) $product->tax->rate * $factor, 2);
+                        }
+
+                        return [
+                            'id'                   => $u->id,
+                            'name'                 => $u->name,
+                            'symbol'               => $u->symbol,
+                            'price'                => $sellPrice,
+                            'discount_amount'      => $discountAmount,
+                            'price_after_discount' => $netPrice,
+                            'tax_name'             => $product->tax?->name,
+                            'tax_rate'             => $product->tax?->rate,
+                            'tax_type'             => $product->tax?->type,
+                            'tax_amount'           => $taxAmount,
+                            'price_with_tax'       => round($netPrice + $taxAmount, 2),
+                            'available_quantity'   => (int) $stockInThisUnit,
+                        ];
+                    })->values()->toArray();
+                }
+
                 return [
-                    'id'             => $product->id,
-                    'name'           => $product->name,
-                    'image'          => $product->image ? asset('storage/' . $product->image) : null,
-                    'selling_price'  => $product->selling_price,
-                    'discount'       => $product->discount,
-                    'discount_type'  => $product->discount_type,
-                    'net_price'      => $product->net_price,
-                    'final_price'    => $product->final_price,
-                    'unit'           => $product->unit ? ['id' => $product->unit->id, 'name' => $product->unit->name] : null,
-                    'tax'            => $product->tax ? [
+                    'id'              => $product->id,
+                    'name'            => $product->name,
+                    'image'           => $product->image ? asset('storage/' . $product->image) : null,
+                    'selling_price'   => $product->selling_price,
+                    'discount'        => $product->discount,
+                    'discount_type'   => $product->discount_type,
+                    'net_price'       => $product->net_price,
+                    'final_price'     => $product->final_price,
+                    'unit'            => $unit ? ['id' => $unit->id, 'name' => $unit->name, 'symbol' => $unit->symbol] : null,
+                    'tax'             => $product->tax ? [
                         'id'   => $product->tax->id,
                         'name' => $product->tax->name,
                         'rate' => $product->tax->rate,
                         'type' => $product->tax->type,
                     ] : null,
+                    'available_units' => $availableUnits,
                 ];
             });
 
